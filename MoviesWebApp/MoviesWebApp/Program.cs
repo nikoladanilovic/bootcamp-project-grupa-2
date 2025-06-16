@@ -1,9 +1,22 @@
+using Autofac.Extensions.DependencyInjection;
+using Autofac;
+using Microsoft.AspNetCore.Builder;
+using MoviesWebApp.Service.Common;
+using MoviesWebApp.Service;
+using MoviesWebApp.Repository.Common;
+using MoviesWebApp.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterType<UsersService>().As<IUsersService>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<UsersRepository>().As<IUsersRepository>().InstancePerLifetimeScope();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -7,9 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="8.3.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
     <ProjectReference Include="..\MoviesWebApp.Repository.Common\MoviesWebApp.Repository.Common.csproj" />
     <ProjectReference Include="..\MoviesWebApp.Repository\MoviesWebApp.Repository.csproj" />
+    <ProjectReference Include="..\MoviesWebApp.Service.Common\MoviesWebApp.Service.Common.csproj" />
   </ItemGroup>
 
 </Project>
