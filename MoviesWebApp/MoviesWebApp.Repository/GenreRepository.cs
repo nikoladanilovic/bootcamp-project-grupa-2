@@ -53,7 +53,7 @@ namespace MoviesWebApp.Repository
                     using (var cmd = new NpgsqlCommand(
                         "INSERT INTO \"genres\" (\"id\", \"name\") VALUES (@Id, @Name)", conn))
                     {
-                        genre.Id = Guid.NewGuid(); // Ensure each genre has a unique Id
+                        genre.Id = Guid.NewGuid(); 
                         cmd.Parameters.AddWithValue("Id", genre.Id);
                         cmd.Parameters.AddWithValue("Name", genre.Name);
                         await cmd.ExecuteNonQueryAsync();
