@@ -10,4 +10,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
+    <ProjectReference Include="..\MoviesWebApp.Service.Common\MoviesWebApp.Service.Common.csproj" />
+    <ProjectReference Include="..\MoviesWebApp.Service\MoviesWebApp.Service.csproj" />
+  </ItemGroup>
+
 </Project>

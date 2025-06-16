@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
+  </ItemGroup>
+
 </Project>
