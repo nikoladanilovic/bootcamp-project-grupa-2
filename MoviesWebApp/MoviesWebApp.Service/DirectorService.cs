@@ -13,6 +13,7 @@ namespace MoviesWebApp.Service
     {
         private readonly IDirectorRepository _repository;
 
+        // Constructor injection for the director repository
         public DirectorService(IDirectorRepository repository)
         {
             _repository = repository;

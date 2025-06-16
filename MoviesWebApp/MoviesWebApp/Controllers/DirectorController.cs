@@ -13,6 +13,7 @@ namespace MoviesWebApp.Controllers
     {
         private readonly IDirectorService _service;
 
+        // Constructor injection for the director service
         public DirectorController(IDirectorService service)
         {
             _service = service;
