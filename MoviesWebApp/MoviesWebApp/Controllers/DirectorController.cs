@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using MoviesWebApp.Model;
 using MoviesWebApp.RESTModels;
 using MoviesWebApp.Service.Common;

@@ -12,5 +12,6 @@ namespace MoviesWebApp.Model
         public string Name { get; set; } = null!;
         public DateTime? Birthdate { get; set; }
         public string? Nationality { get; set; }
+        
     }
 }

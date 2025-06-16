@@ -15,5 +15,6 @@ namespace MoviesWebApp.RESTModels
             this.Birthdate = director.Birthdate;
             this.Nationality = director.Nationality;
         }
+        
     }
 }
