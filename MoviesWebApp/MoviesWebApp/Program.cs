@@ -1,5 +1,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+<<<<<<< HEAD
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,11 +9,15 @@ using MoviesWebApp.Repository;
 using MoviesWebApp.Repository.Common;
 using MoviesWebApp.Service;
 using MoviesWebApp.Service.Common;
+=======
+>>>>>>> 56073b666f02b0182f71bffc2c413ae16e2fa742
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
+<<<<<<< HEAD
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 {
@@ -20,6 +25,18 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterType<GenreRepository>().As<IGenreRepository>().InstancePerLifetimeScope();
         });
 
+=======
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    // Register your services here
+    containerBuilder.RegisterType<MoviesWebApp.Repository.DirectorRepository>()
+        .As<MoviesWebApp.Repository.Common.IDirectorRepository>()
+        .InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MoviesWebApp.Service.DirectorService>()
+        .As<MoviesWebApp.Service.Common.IDirectorService>()
+        .InstancePerLifetimeScope();
+});
+>>>>>>> 56073b666f02b0182f71bffc2c413ae16e2fa742
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
