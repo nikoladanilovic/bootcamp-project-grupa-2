@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
+    <PackageReference Include="Autofac" Version="8.3.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+=======
+>>>>>>> 56073b666f02b0182f71bffc2c413ae16e2fa742
     <PackageReference Include="Npgsql" Version="9.0.3" />
   </ItemGroup>
 
