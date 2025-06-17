@@ -9,7 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="8.3.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+<<<<<<< HEAD
     <PackageReference Include="Npgsql" Version="9.0.3" />
+=======
+>>>>>>> 56073b666f02b0182f71bffc2c413ae16e2fa742
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
