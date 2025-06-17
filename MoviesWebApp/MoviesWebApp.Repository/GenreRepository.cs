@@ -13,7 +13,7 @@ namespace MoviesWebApp.Repository
     public class GenreRepository : IGenreRepository
     {
 
-        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=admin1235;Database=bootcamp-project";
+        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project";
 
         public async Task<List<Genre>> GetAllGenresAsync()
         {
@@ -120,6 +120,7 @@ namespace MoviesWebApp.Repository
             }
             return null;
         }
+
     }
 }
 

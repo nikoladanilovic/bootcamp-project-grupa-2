@@ -1,4 +1,3 @@
-
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -29,6 +28,8 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterType<UsersRepository>().As<IUsersRepository>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<MovieService>().As<IMovieService>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<MovieRepository>().As<IMovieRepository>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MovieGenreService>().As<IMovieGenreService>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MovieGenreRepository>().As<IMovieGenreRepository>().InstancePerLifetimeScope();
 });
 
 
