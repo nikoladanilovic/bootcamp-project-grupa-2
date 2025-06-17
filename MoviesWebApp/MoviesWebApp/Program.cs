@@ -27,6 +27,8 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
         .InstancePerLifetimeScope();
     containerBuilder.RegisterType<UsersService>().As<IUsersService>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<UsersRepository>().As<IUsersRepository>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MovieService>().As<IMovieService>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MovieRepository>().As<IMovieRepository>().InstancePerLifetimeScope();
 });
 
 
