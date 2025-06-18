@@ -14,5 +14,6 @@ namespace MoviesWebApp.Service.Common
         Task UpdateGenreAsync(Guid id, Genre genre);
         Task DeleteGenreAsync(Guid id);
         Task<Genre> GetGenreByIdAsync(Guid id);
+        Task<List<MovieGenre>> GetMovieGenresByGenreIdAsync(Guid genreId);
     }
 }

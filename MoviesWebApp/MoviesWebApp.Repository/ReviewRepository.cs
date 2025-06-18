@@ -13,7 +13,7 @@ namespace MoviesWebApp.Repository
     {
         private readonly string _connectionString;
 
-        public ReviewRepository(string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=plava123;Database=bootcamp-project")
+        public ReviewRepository(string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project")
         {
             _connectionString = connectionString;
         }

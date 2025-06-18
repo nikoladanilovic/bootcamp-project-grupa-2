@@ -11,7 +11,7 @@ namespace MoviesWebApp.Repository
 {
     public class MovieRepository : IMovieRepository
     {
-        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=plava123;Database=bootcamp-project";
+        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project";
 
         private NpgsqlConnection CreateConnection() => new(_connectionString);
 

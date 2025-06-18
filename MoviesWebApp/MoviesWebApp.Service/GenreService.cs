@@ -40,5 +40,9 @@ namespace MoviesWebApp.Service
             return await _genreRepository.GetGenreByIdAsync(id);
 
         }
+        public async Task<List<MovieGenre>> GetMovieGenresByGenreIdAsync(Guid genreId)
+        {
+            return await _genreRepository.GetMovieGenresByGenreIdAsync(genreId);
+        }
     }
 }
