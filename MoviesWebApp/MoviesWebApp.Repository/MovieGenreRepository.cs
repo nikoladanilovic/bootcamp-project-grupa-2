@@ -11,7 +11,7 @@ namespace MoviesWebApp.Repository
 {
     public class MovieGenreRepository : IMovieGenreRepository
     {
-        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project";
+        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=admin1235;Database=bootcamp-project";
 
         public async Task<List<Guid>> GetMovieGenreIdsAsync(Guid movieId)
         {

@@ -30,7 +30,9 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterType<MovieService>().As<IMovieService>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<MovieRepository>().As<IMovieRepository>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<ReviewService>().As<IReviewService>().InstancePerLifetimeScope();
-    containerBuilder.RegisterType<ReviewRepository>().As<IReviewRepository>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<ReviewRepository>().As<IReviewRepository>().InstancePerLifetimeScope(); 
+    containerBuilder.RegisterType<MovieGenreService>().As<IMovieGenreService>().InstancePerLifetimeScope();
+    containerBuilder.RegisterType<MovieGenreRepository>().As<IMovieGenreRepository>().InstancePerLifetimeScope();
 });
 
 
@@ -57,10 +59,3 @@ app.MapControllers();
 
 app.Run();
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
