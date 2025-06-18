@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using MoviesWebApp.Repository.Common;
 using MoviesWebApp.Model;
-using MoviesWebApp.Service.Common;
 
 namespace MoviesWebApp.Service
 {

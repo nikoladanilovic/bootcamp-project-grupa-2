@@ -14,5 +14,6 @@ namespace MoviesWebApp.Service.Common
         public Task CreateReviewAsync(List<Review> reviews);
         public Task<bool> UpdateReviewAsync(Guid id, Review review);
         public Task DeleteReviewAsync(Guid id);
+        public Task<IEnumerable<Review>> GetReviewsByUserIdAsync(Guid userId);
     }
 }

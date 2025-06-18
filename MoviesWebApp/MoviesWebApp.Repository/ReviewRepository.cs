@@ -3,8 +3,6 @@ using MoviesWebApp.Repository.Common;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MoviesWebApp.Repository
@@ -13,9 +11,9 @@ namespace MoviesWebApp.Repository
     {
         private readonly string _connectionString;
 
-        public ReviewRepository(string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=plava123;Database=bootcamp-project")
+        public ReviewRepository(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
         public async Task<IEnumerable<Review>> GetAllReviewsAsync()
@@ -33,8 +31,8 @@ namespace MoviesWebApp.Repository
                         {
                             Id = reader.GetGuid(0),
                             UserId = reader.GetGuid(1),
-                            MovieId =  reader.GetGuid(2),
-                            Rating =  reader.GetInt32(3),
+                            MovieId = reader.GetGuid(2),
+                            Rating = reader.GetInt32(3),
                             Comment = reader.IsDBNull(4) ? null : reader.GetString(4),
                             CreatedAt = reader.GetDateTime(5)
                         });
@@ -42,8 +40,8 @@ namespace MoviesWebApp.Repository
                 }
             }
             return reviews;
-
         }
+
         public async Task<Review?> GetReviewByIdAsync(Guid id)
         {
             using (var conn = new NpgsqlConnection(_connectionString))
@@ -71,6 +69,7 @@ namespace MoviesWebApp.Repository
             }
             return null;
         }
+
         public async Task CreateReviewAsync(List<Review> reviews)
         {
             using (var conn = new NpgsqlConnection(_connectionString))
@@ -81,42 +80,39 @@ namespace MoviesWebApp.Repository
                     foreach (var review in reviews)
                     {
                         review.Id = Guid.NewGuid();
+                        cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@Id", review.Id);
                         cmd.Parameters.AddWithValue("@UserId", review.UserId);
                         cmd.Parameters.AddWithValue("@MovieId", review.MovieId);
                         cmd.Parameters.AddWithValue("@Rating", review.Rating);
-                        cmd.Parameters.AddWithValue("@Comment", (object?)review.Comment ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Comment", review.Comment ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
-                        using (var reader = await cmd.ExecuteReaderAsync()) ;
+                        await cmd.ExecuteNonQueryAsync();
                     }
                 }
             }
-
         }
+
         public async Task<bool> UpdateReviewAsync(Guid id, Review review)
         {
             using (var conn = new NpgsqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
-                using (var cmd = new NpgsqlCommand("UPDATE \"reviews\" " +
-                    "SET \"user_id\" = @UserId, \"movie_id\" = @MovieId, \"rating\" = @Rating, \"comment\" = @Comment " +
-                    "WHERE \"id\" = @Id", conn))
+                using (var cmd = new NpgsqlCommand("UPDATE \"reviews\" SET \"user_id\" = @UserId, \"movie_id\" = @MovieId, \"rating\" = @Rating, \"comment\" = @Comment WHERE \"id\" = @Id", conn))
                 {
                     cmd.Parameters.AddWithValue("@Id", id);
                     cmd.Parameters.AddWithValue("@UserId", review.UserId);
                     cmd.Parameters.AddWithValue("@MovieId", review.MovieId);
                     cmd.Parameters.AddWithValue("@Rating", review.Rating);
-                    cmd.Parameters.AddWithValue("@Comment", (object?)review.Comment ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Comment", review.Comment ?? (object)DBNull.Value);
                     int affectedRows = await cmd.ExecuteNonQueryAsync();
                     return affectedRows > 0;
                 }
             }
         }
 
-
         public async Task DeleteReviewAsync(Guid id)
         {
-
             using (var conn = new NpgsqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
@@ -126,7 +122,49 @@ namespace MoviesWebApp.Repository
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
-
         }
+        public async Task<IEnumerable<Review>> GetReviewsByUserIdAsync(Guid userId)
+        {
+            var reviews = new List<Review>();
+            using (var conn = new NpgsqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand("SELECT * FROM \"reviews\" WHERE \"user_id\" = @UserId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            reviews.Add(new Review
+                            {
+                                Id = reader.GetGuid(0),
+                                UserId = reader.GetGuid(1),
+                                MovieId = reader.GetGuid(2),
+                                Rating = reader.GetInt32(3),
+                                Comment = reader.IsDBNull(4) ? null : reader.GetString(4),
+                                CreatedAt = reader.GetDateTime(5)
+                            });
+                        }
+                    }
+                }
+            }
+            return reviews;
+        }
+        public async Task<bool> ReviewExistsAsync(Guid userId, Guid movieId)
+        {
+            using (var conn = new NpgsqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand("SELECT COUNT(1) FROM \"reviews\" WHERE \"user_id\" = @UserId AND \"movie_id\" = @MovieId", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@MovieId", movieId);
+                    var count = (long)await cmd.ExecuteScalarAsync();
+                    return count > 0;
+                }
+            }
+        }
+
     }
 }

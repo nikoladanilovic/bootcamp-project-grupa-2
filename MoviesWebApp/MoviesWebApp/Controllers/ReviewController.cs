@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoviesWebApp.Model;
 using MoviesWebApp.RESTModels;
 using MoviesWebApp.Service.Common;
+using Npgsql;
 
 namespace MoviesWebApp.Controllers
 {
@@ -10,26 +12,21 @@ namespace MoviesWebApp.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        public readonly IReviewService reviewService;
-        public ReviewController(IReviewService reviewService)
+        private readonly IReviewService reviewService;
+        private readonly IMapper _mapper;
+
+        public ReviewController(IReviewService reviewService, IMapper mapper)
         {
             this.reviewService = reviewService;
+            _mapper = mapper;
         }
 
         [HttpGet("get-review")]
         public async Task<IActionResult> GetAllReviewAsync()
         {
-            var review = await reviewService.GetAllReviewsAsync();
-            var reviewRest = review.Select(u => new ReviewREST
-            {
-                Id = u.Id,
-                UserId = u.UserId,
-                MovieId = u.MovieId,
-                Rating = u.Rating,
-                Comment = u.Comment
-            });
-
-            return Ok(reviewRest); 
+            var reviews = await reviewService.GetAllReviewsAsync();
+            var reviewRest = _mapper.Map<IEnumerable<ReviewREST>>(reviews);
+            return Ok(reviewRest);
         }
 
         [HttpGet("get-review/{id}")]
@@ -39,66 +36,81 @@ namespace MoviesWebApp.Controllers
             if (review == null)
                 return NotFound();
 
-            var reviewRest = new ReviewREST
-            {
-                Id = review.Id,
-                UserId = review.UserId,
-                MovieId = review.MovieId,
-                Rating = review.Rating,
-                Comment = review.Comment
-            };
-
+            var reviewRest = _mapper.Map<ReviewREST>(review);
             return Ok(reviewRest);
         }
 
-        [HttpPost("create-Review")]
+        [HttpPost("create-review")]
         public async Task<IActionResult> CreateReviewAsync([FromBody] List<ReviewREST> reviewREST)
         {
             if (reviewREST == null || reviewREST.Count == 0)
+                return BadRequest("Reviews cannot be null or empty.");
+
+            try
             {
-                return BadRequest("Review cannot be null or empty.");
+                var reviews = _mapper.Map<List<Review>>(reviewREST);
+                await reviewService.CreateReviewAsync(reviews);
+                return Ok(_mapper.Map<List<ReviewREST>>(reviews));
             }
-
-            var reviews = reviewREST.Select(review => new Review
+            catch (InvalidOperationException ex)
             {
-                Id = review.Id,
-                UserId = review.UserId,
-                MovieId = review.MovieId,
-                Rating = review.Rating,
-                Comment = review.Comment
-            }).ToList(); 
-
-            await reviewService.CreateReviewAsync(reviews); 
-            return Ok();
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505" && ex.ConstraintName == "reviews_user_movie_unique")
+            {
+                return BadRequest("This user has already reviewed this movie.");
+            }
         }
 
-        [HttpPut("update-Review")]
+        [HttpPut("update-review")]
         public async Task<IActionResult> UpdateReviewAsync(Guid id, [FromBody] ReviewREST reviewREST)
         {
-            if (reviewREST == null)
-                return BadRequest("Review cannot be null.");
-
-            var review = new Review
+            try
             {
-                Id = reviewREST.Id,
-                UserId = reviewREST.UserId,
-                MovieId = reviewREST.MovieId,
-                Rating = reviewREST.Rating,
-                Comment = reviewREST.Comment
-            };
+                var review = _mapper.Map<Review>(reviewREST);
+                bool updated = await reviewService.UpdateReviewAsync(id, review);
+                if (!updated)
+                    return NotFound("Review not found or not updated.");
 
-            bool updated = await reviewService.UpdateReviewAsync(id, review);
-            if (!updated)
-                return NotFound("Review not found or not updated.");
-
-            return Ok("Review updated.");
+                return Ok(_mapper.Map<ReviewREST>(review));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505" && ex.ConstraintName == "reviews_user_movie_unique")
+            {
+                return BadRequest("This user has already reviewed this movie with that ID.");
+            }
         }
 
-        [HttpDelete("delete-Review/{id}")]
-        public async Task<IActionResult> DeletePlayerAsync(Guid id)
+        [HttpDelete("delete-review/{id}")]
+        public async Task<IActionResult> DeleteReviewAsync(Guid id)
         {
-            await reviewService.DeleteReviewAsync(id); 
+            var review = await reviewService.GetReviewByIdAsync(id);
+            if (review == null)
+                return NotFound();
+
+            await reviewService.DeleteReviewAsync(id);
             return NoContent();
         }
+        [HttpGet("get-user-review{user_id}")]
+        public async Task<IActionResult> GetReviewsByUserIdAsync(Guid user_id)
+        {
+            var reviews = await reviewService.GetReviewsByUserIdAsync(user_id);
+            if (reviews == null || !reviews.Any())
+                return NotFound("No reviews found for this user.");
+            var reviewRest = _mapper.Map<IEnumerable<ReviewREST>>(reviews);
+            return Ok(reviewRest);
+        }
+
     }
 }

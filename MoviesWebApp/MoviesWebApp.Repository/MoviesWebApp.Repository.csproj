@@ -16,6 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
     <ProjectReference Include="..\MoviesWebApp.Repository.Common\MoviesWebApp.Repository.Common.csproj" />
+    <ProjectReference Include="..\MoviesWebApp.Service.Common\MoviesWebApp.Service.Common.csproj" />
+    <ProjectReference Include="..\MoviesWebApp.Service\MoviesWebApp.Service.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,23 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autofac" Version="8.3.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
-    <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="Npgsql" Version="9.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
-    <ProjectReference Include="..\MoviesWebApp.Repository.Common\MoviesWebApp.Repository.Common.csproj" />
-    <ProjectReference Include="..\MoviesWebApp.Repository\MoviesWebApp.Repository.csproj" />
-    <ProjectReference Include="..\MoviesWebApp.Service.Common\MoviesWebApp.Service.Common.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MoviesWebApp.Model\MoviesWebApp.Model.csproj" />
+		<ProjectReference Include="..\MoviesWebApp.Repository.Common\MoviesWebApp.Repository.Common.csproj" />
+		<ProjectReference Include="..\MoviesWebApp.Service.Common\MoviesWebApp.Service.Common.csproj" />
+	</ItemGroup>
 
 </Project>

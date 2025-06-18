@@ -1,18 +1,18 @@
-﻿using System;
+﻿using MoviesWebApp.Model;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using MoviesWebApp.Model;
 
 namespace MoviesWebApp.Repository.Common
 {
-   public interface IUsersRepository
+    public interface IUsersRepository
     {
-        public Task<IEnumerable<User>> GetAllUsersAsync();
-        public Task<User?> GetUserByIdAsync(Guid id);
-        public Task CreateUserAsync(List<User> users);
-        public Task <bool>UpdateUserAsync(Guid id, User user);
-        public Task DeleteUserAsync(Guid id);
+        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<User> GetUserByIdAsync(Guid id);
+        Task<bool> UsernameExistsAsync(string username);
+        Task<bool> EmailExistsAsync(string email);
+        Task CreateUserAsync(List<User> users);
+        Task<bool> UpdateUserAsync(Guid id, User user);
+        Task DeleteUserAsync(Guid id);
     }
 }
