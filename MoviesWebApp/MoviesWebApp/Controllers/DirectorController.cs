@@ -84,5 +84,17 @@ namespace MoviesWebApp.Controllers
             await _service.DeleteAsync(id);
             return await GetAll();
         }
+
+        [HttpGet("movies-from-director-{id}")]
+        public async Task<IActionResult> GetMoviesFromDirector(Guid id)
+        {
+            var moviesFromDirectors = await _service.GetMoviesFromDirector(id);
+            List<MovieREST> moviesFromDirectorsREST = new List<MovieREST>();
+            foreach (var movie in moviesFromDirectors)
+            {
+                moviesFromDirectorsREST.Add(_mapper.Map<MovieREST>(movie));
+            }
+            return Ok(moviesFromDirectorsREST);
+        }
     }
 }

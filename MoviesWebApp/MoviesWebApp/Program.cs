@@ -14,6 +14,9 @@ using MoviesWebApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var configuration = builder.Configuration;
+var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 {
@@ -33,7 +36,11 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterType<ReviewRepository>().As<IReviewRepository>().InstancePerLifetimeScope(); 
     containerBuilder.RegisterType<MovieGenreService>().As<IMovieGenreService>().InstancePerLifetimeScope();
     containerBuilder.RegisterType<MovieGenreRepository>().As<IMovieGenreRepository>().InstancePerLifetimeScope();
+    containerBuilder.RegisterInstance(connectionString).As<string>();
+
 });
+
+
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
