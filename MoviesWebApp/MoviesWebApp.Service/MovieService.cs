@@ -39,5 +39,13 @@ namespace MoviesWebApp.Service
         {
             await _repository.DeleteAsync(id);
         }
+        public async Task<Movie> GetGenresOfMovieAsync(Guid id)
+        {
+            return await _repository.GetGenresOfMovieAsync(id);
+        }
+        public async Task<Movie> GetReviewsOfMovieAsync(Guid id)
+        {
+            return await _repository.GetReviewsOfMovieAsync(id);
+        }
     }
 }

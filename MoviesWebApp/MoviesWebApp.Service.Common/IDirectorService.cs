@@ -14,5 +14,6 @@ namespace MoviesWebApp.Service.Common
         Task AddAsync(Director director);
         Task UpdateAsync(Director director);
         Task DeleteAsync(Guid id);
+        Task<IEnumerable<Movie>> GetMoviesFromDirector(Guid id);
     }
 }
