@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoviesWebApp.Model;
 using MoviesWebApp.Repository;
 using MoviesWebApp.RESTModels;
 using MoviesWebApp.Service.Common;
 using System.Numerics;
+
 
 namespace MoviesWebApp.Controllers
 {
@@ -13,6 +15,7 @@ namespace MoviesWebApp.Controllers
     public class UsersControler : ControllerBase
     {
         public readonly IUsersService usersService;
+
         public UsersControler(IUsersService usersService)
         {
             this.usersService = usersService;

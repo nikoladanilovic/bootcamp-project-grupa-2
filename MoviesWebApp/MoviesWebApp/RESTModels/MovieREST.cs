@@ -10,16 +10,5 @@ namespace MoviesWebApp.RESTModels
         public int DurationMinutes { get; set; }
         public Guid DirectorId { get; set; }
         public string? Description { get; set; }
-
-        public MovieREST(Movie movie)
-        {
-            Id = movie.Id;
-            Title = movie.Title;
-            ReleaseYear = movie.ReleaseYear;
-            DurationMinutes = movie.DurationMinutes;
-            DirectorId = movie.DirectorId;
-            Description = movie.Description;
-            
-        }
     }
 }

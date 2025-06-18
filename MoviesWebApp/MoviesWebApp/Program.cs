@@ -9,10 +9,10 @@ using MoviesWebApp.Repository;
 using MoviesWebApp.Repository.Common;
 using MoviesWebApp.Service;
 using MoviesWebApp.Service.Common;
-
+using AutoMapper;
+using MoviesWebApp;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
@@ -35,7 +35,7 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterType<MovieGenreRepository>().As<IMovieGenreRepository>().InstancePerLifetimeScope();
 });
 
-
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

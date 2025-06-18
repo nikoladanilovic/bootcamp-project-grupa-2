@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using MoviesWebApp.Model;
@@ -9,14 +10,18 @@ namespace MoviesWebApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DirectorController : Controller
+    public class DirectorController : ControllerBase
     {
         private readonly IDirectorService _service;
 
+        private readonly IMapper _mapper;
+
+
         // Constructor injection for the director service
-        public DirectorController(IDirectorService service)
+        public DirectorController(IDirectorService service, IMapper mapper)
         {
             _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -26,7 +31,7 @@ namespace MoviesWebApp.Controllers
             List<DirectorREST> directorsREST = new List<DirectorREST>();
             foreach (var director in directors)
             {
-                directorsREST.Add(new DirectorREST(director));
+                directorsREST.Add(_mapper.Map<DirectorREST>(director));
             }
             return Ok(directorsREST);
         }
@@ -35,27 +40,39 @@ namespace MoviesWebApp.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var director = await _service.GetByIdAsync(id);
-            DirectorREST directorREST = new DirectorREST(director);
+            DirectorREST directorREST = _mapper.Map<DirectorREST>(director);
             if (director == null) return NotFound();
             return Ok(directorREST);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Director director)
+        public async Task<IActionResult> Create([FromBody] DirectorREST directorREST)
         {
-            await _service.AddAsync(director);
-            return CreatedAtAction(nameof(GetById), new { id = director.Id }, director);
+            //await _service.AddAsync(director);
+            //return CreatedAtAction(nameof(GetById), new { id = director.Id }, director);
+            
+            var directorDomain = _mapper.Map<Director>(directorREST);
+
+            // TODO: Save to database
+            await _service.AddAsync(directorDomain);
+
+            // Return mapped DTO from entity
+            var directorResult = _mapper.Map<DirectorREST>(directorDomain);
+            return Ok(directorResult);
+            
+
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] Director director)
+        public async Task<IActionResult> Update(Guid id, [FromBody] DirectorREST directorREST)
         {
             var existing = await _service.GetByIdAsync(id);
             if (existing == null) return NotFound();
 
-            director.Id = id; // Ensure ID is correct
-            await _service.UpdateAsync(director);
-            return NoContent();
+            directorREST.Id = id; // Ensure ID is correct
+            var directorDomain = _mapper.Map<Director>(directorREST);
+            await _service.UpdateAsync(directorDomain);
+            return await GetAll();
         }
 
         [HttpDelete("{id}")]
@@ -65,7 +82,7 @@ namespace MoviesWebApp.Controllers
             if (existing == null) return NotFound();
 
             await _service.DeleteAsync(id);
-            return NoContent();
+            return await GetAll();
         }
     }
 }
