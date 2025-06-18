@@ -13,5 +13,10 @@ public class MappingProfile : Profile
         CreateMap<Review, ReviewREST>()
             .ReverseMap()
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+        CreateMap<Movie, MovieREST>()
+            .ReverseMap();
+        CreateMap<Director, DirectorREST>();
+        CreateMap<DirectorREST, Director>();
+
     }
 }

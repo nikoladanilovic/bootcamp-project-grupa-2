@@ -12,7 +12,11 @@ namespace MoviesWebApp.Repository
 {
     public class DirectorRepository : IDirectorRepository
     {
-        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project";
+        private readonly string _connectionString;
+        public DirectorRepository(string connectionString)
+        {
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        }
 
         private NpgsqlConnection CreateConnection() => new NpgsqlConnection(_connectionString);
 
