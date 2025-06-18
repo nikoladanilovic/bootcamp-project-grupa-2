@@ -16,5 +16,6 @@ namespace MoviesWebApp.Repository.Common
         Task DeleteAsync(Guid id);
         Task<IEnumerable<Movie>> GetMoviesFromDirector(Guid id);
         Task<Movie> GetGenresOfMovieAsync(Guid id);
+        Task<Movie> GetReviewsOfMovieAsync(Guid id);
     }
 }

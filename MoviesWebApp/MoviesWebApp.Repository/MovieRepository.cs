@@ -180,5 +180,39 @@ namespace MoviesWebApp.Repository
             }
             return movieWithGenres;
         }
+
+        public async Task<Movie> GetReviewsOfMovieAsync(Guid id)
+        {
+            Movie movieWithReviews = new Movie();
+            movieWithReviews.Reviews = new List<Review>();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new NpgsqlCommand("select m.id, m.title, m.release_year, m.duration_minutes, m.director_id, m.description, r.id, r.user_id, r.movie_id, r.rating, r.comment " +
+                    "from movies m " +
+                    "join reviews r on m.id = r.movie_id " +
+                    "where r.movie_id = @Id", connection);
+                command.Parameters.AddWithValue("@Id", id);
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    movieWithReviews.Id = reader.GetGuid(0);
+                    movieWithReviews.Title = reader.GetString(1);
+                    movieWithReviews.ReleaseYear = reader.GetInt32(2);
+                    movieWithReviews.DurationMinutes = reader.GetInt32(3);
+                    movieWithReviews.DirectorId = reader.GetGuid(4);
+                    movieWithReviews.Description = reader.IsDBNull(5) ? null : reader.GetString(5);
+                    movieWithReviews.Reviews.Add(new Review
+                    {
+                        Id = reader.GetGuid(6),
+                        UserId = reader.GetGuid(7),
+                        MovieId = reader.GetGuid(8),
+                        Rating = reader.GetInt32(9),
+                        Comment = reader.IsDBNull(10) ? null : reader.GetString(10)
+                    });
+                }
+            }
+            return movieWithReviews;
+        }
     }
 }

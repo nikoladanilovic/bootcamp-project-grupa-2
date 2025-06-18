@@ -85,5 +85,19 @@ namespace MoviesWebApp.Controllers
             }
             return Ok(genresREST);
         }
+
+        [HttpGet("reviews-{id}")]
+        public async Task<IActionResult> GetReviewsOfMovie(Guid id)
+        {
+            var movie = await _service.GetReviewsOfMovieAsync(id);
+            List<ReviewREST> reviewsREST = new List<ReviewREST>();
+            if (movie == null) return NotFound();
+            if (movie.Reviews == null) return NotFound();
+            foreach (var review in movie.Reviews)
+            {
+                reviewsREST.Add(_mapper.Map<ReviewREST>(review));
+            }
+            return Ok(reviewsREST);
+        }
     }
 }

@@ -15,5 +15,6 @@ namespace MoviesWebApp.Service.Common
         Task UpdateAsync(Movie movie);
         Task DeleteAsync(Guid id);
         Task<Movie> GetGenresOfMovieAsync(Guid id);
+        Task<Movie> GetReviewsOfMovieAsync(Guid id);
     }
 }
