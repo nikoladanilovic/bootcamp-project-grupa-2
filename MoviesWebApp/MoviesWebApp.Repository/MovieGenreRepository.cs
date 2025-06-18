@@ -11,8 +11,11 @@ namespace MoviesWebApp.Repository
 {
     public class MovieGenreRepository : IMovieGenreRepository
     {
-        private readonly string _connectionString = "Host=localhost;Port=5432;Username=postgres;Password=sifra123;Database=bootcamp-project";
-
+        private readonly string _connectionString;
+        public MovieGenreRepository(string connectionString)
+        {
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        }
         public async Task<List<Guid>> GetMovieGenreIdsAsync(Guid movieId)
         {
             var genreIds = new List<Guid>();
@@ -81,9 +84,8 @@ namespace MoviesWebApp.Repository
 
         public async Task UpdateMovieGenreAsync(Guid movieId, Guid genreId)
         {
-            // Clear existing genres for the movie
+            
             await ClearMovieGenresAsync(movieId);
-            // Add the new genre
             await AddMovieGenreAsync(movieId, genreId);
         }
     }
