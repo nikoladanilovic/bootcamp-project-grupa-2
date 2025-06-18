@@ -14,5 +14,8 @@ namespace MoviesWebApp.Model
         public int DurationMinutes { get; set; }
         public Guid DirectorId { get; set; }
         public string? Description { get; set; }
+        public Director? Director { get; set; } = null!;
+        public List<Genre>? Genres { get; set; } = null!;
+        public List<Review>? Reviews { get; set; } = null!;
     }
 }

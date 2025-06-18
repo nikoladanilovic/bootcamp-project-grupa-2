@@ -148,5 +148,37 @@ namespace MoviesWebApp.Repository
             }
             return moviesList;
         }
+
+        public async Task<Movie> GetGenresOfMovieAsync(Guid id)
+        {
+            Movie movieWithGenres = new Movie();
+            movieWithGenres.Genres = new List<Genre>();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new NpgsqlCommand("select m.id, m.title, m.release_year, m.duration_minutes, m.director_id, m.description, g.id, g.name " +
+                    "from movies m " +
+                    "join movie_genres mg on m.id = mg.movie_id " +
+                    "join genres g on g.id = mg.genre_id " +
+                    "where mg.movie_id = @Id", connection);
+                command.Parameters.AddWithValue("@Id", id);
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    movieWithGenres.Id = reader.GetGuid(0);
+                    movieWithGenres.Title = reader.GetString(1);
+                    movieWithGenres.ReleaseYear = reader.GetInt32(2);
+                    movieWithGenres.DurationMinutes = reader.GetInt32(3);
+                    movieWithGenres.DirectorId = reader.GetGuid(4);
+                    movieWithGenres.Description = reader.IsDBNull(5) ? null : reader.GetString(5);
+                    movieWithGenres.Genres.Add(new Genre
+                    {
+                        Id = reader.GetGuid(6),
+                        Name = reader.GetString(7)
+                    });
+                }
+            }
+            return movieWithGenres;
+        }
     }
 }

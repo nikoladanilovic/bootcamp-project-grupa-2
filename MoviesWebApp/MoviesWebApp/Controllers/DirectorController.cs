@@ -88,9 +88,11 @@ namespace MoviesWebApp.Controllers
         [HttpGet("movies-from-director-{id}")]
         public async Task<IActionResult> GetMoviesFromDirector(Guid id)
         {
-            var moviesFromDirectors = await _service.GetMoviesFromDirector(id);
+            var director = await _service.GetByIdAsync(id);
+            if (director == null) return NotFound();
+            director.Movies = await _service.GetMoviesFromDirector(id);
             List<MovieREST> moviesFromDirectorsREST = new List<MovieREST>();
-            foreach (var movie in moviesFromDirectors)
+            foreach (var movie in director.Movies)
             {
                 moviesFromDirectorsREST.Add(_mapper.Map<MovieREST>(movie));
             }

@@ -14,6 +14,12 @@ namespace MoviesWebApp
             // Director mappings
             CreateMap<DirectorREST, Director>();
             CreateMap<Director, DirectorREST>();
+            // Genre mappings
+            CreateMap<GenreREST, Genre>();
+            CreateMap<Genre, GenreREST>();
+            // Review mappings
+            CreateMap<ReviewREST, Review>();
+            CreateMap<Review, ReviewREST>();
         }
     }
 }

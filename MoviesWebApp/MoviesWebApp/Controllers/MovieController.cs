@@ -72,5 +72,18 @@ namespace MoviesWebApp.Controllers
             await _service.DeleteAsync(id);
             return await GetAll();
         }
+        [HttpGet("genres-{id}")]
+        public async Task<IActionResult> GetGenresOfMovie(Guid id)
+        {
+            var movie = await _service.GetGenresOfMovieAsync(id);
+            List<GenreREST> genresREST = new List<GenreREST>();
+            if (movie == null) return NotFound();
+            if (movie.Genres == null) return NotFound();
+            foreach (var genre in movie.Genres)
+            {
+                genresREST.Add(_mapper.Map<GenreREST>(genre));
+            }
+            return Ok(genresREST);
+        }
     }
 }
