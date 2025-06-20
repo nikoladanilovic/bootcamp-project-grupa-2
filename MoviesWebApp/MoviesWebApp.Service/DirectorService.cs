@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MoviesWebApp.Service.Common;
+using Microsoft.Extensions.Logging;
 
 namespace MoviesWebApp.Service
 {
@@ -13,12 +14,14 @@ namespace MoviesWebApp.Service
     {
         private readonly IDirectorRepository _repository;
         private readonly IMovieRepository _movieRepository;
+        private readonly ILogger<DirectorService> _logger;
 
         // Constructor injection for the director repository
-        public DirectorService(IDirectorRepository repository, IMovieRepository movieRepository)
+        public DirectorService(IDirectorRepository repository, IMovieRepository movieRepository, ILogger<DirectorService> logger)
         {
             _repository = repository;
             _movieRepository = movieRepository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Director>> GetAllAsync()

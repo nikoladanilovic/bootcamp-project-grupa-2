@@ -10,10 +10,15 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole(); // or AddFile(), AddDebug() etc.
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 

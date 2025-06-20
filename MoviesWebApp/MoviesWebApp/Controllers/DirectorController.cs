@@ -15,13 +15,15 @@ namespace MoviesWebApp.Controllers
         private readonly IDirectorService _service;
 
         private readonly IMapper _mapper;
+        private readonly ILogger<DirectorController> _logger;
 
 
         // Constructor injection for the director service
-        public DirectorController(IDirectorService service, IMapper mapper)
+        public DirectorController(IDirectorService service, IMapper mapper, ILogger<DirectorController> logger)
         {
             _service = service;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]

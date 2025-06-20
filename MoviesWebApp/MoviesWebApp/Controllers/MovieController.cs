@@ -15,11 +15,13 @@ namespace MoviesWebApp.Controllers
     {
         private readonly IMovieService _service;
         private readonly IMapper _mapper;
+        private readonly ILogger<MovieController> _logger;
 
-        public MovieController(IMovieService service, IMapper mapper)
+        public MovieController(IMovieService service, IMapper mapper, ILogger<MovieController> logger)
         {
             _service = service;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]

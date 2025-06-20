@@ -1,4 +1,5 @@
-﻿using MoviesWebApp.Model;
+﻿using Microsoft.Extensions.Logging;
+using MoviesWebApp.Model;
 using MoviesWebApp.Repository.Common;
 using Npgsql;
 using System;
@@ -13,9 +14,11 @@ namespace MoviesWebApp.Repository
     {
         
         private readonly string _connectionString;
-        public MovieRepository(string connectionString)
+        private readonly ILogger<MovieRepository> _logger;
+        public MovieRepository(string connectionString, ILogger<MovieRepository> logger)
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _logger = logger;
         }
         private NpgsqlConnection CreateConnection() => new(_connectionString);
 

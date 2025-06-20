@@ -6,16 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace MoviesWebApp.Service
 {
     public class MovieService : IMovieService
     {
         private readonly IMovieRepository _repository;
+        private readonly ILogger<MovieService> _logger;
 
-        public MovieService(IMovieRepository repository)
+        public MovieService(IMovieRepository repository, ILogger<MovieService> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Movie>> GetAllAsync()

@@ -1,4 +1,5 @@
-﻿using MoviesWebApp.Model;
+﻿using Microsoft.Extensions.Logging;
+using MoviesWebApp.Model;
 using MoviesWebApp.Repository.Common;
 using Npgsql;
 using System;
@@ -13,9 +14,11 @@ namespace MoviesWebApp.Repository
     public class DirectorRepository : IDirectorRepository
     {
         private readonly string _connectionString;
-        public DirectorRepository(string connectionString)
+        private readonly ILogger<DirectorRepository> _logger;
+        public DirectorRepository(string connectionString, ILogger<DirectorRepository> logger)
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _logger = logger;
         }
 
         private NpgsqlConnection CreateConnection() => new NpgsqlConnection(_connectionString);
