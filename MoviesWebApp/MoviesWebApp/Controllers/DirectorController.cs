@@ -53,8 +53,14 @@ namespace MoviesWebApp.Controllers
             
             var directorDomain = _mapper.Map<Director>(directorREST);
 
-            // TODO: Save to database
-            await _service.AddAsync(directorDomain);
+            try
+            {
+                await _service.AddAsync(directorDomain);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             // Return mapped DTO from entity
             var directorResult = _mapper.Map<DirectorREST>(directorDomain);
@@ -71,7 +77,15 @@ namespace MoviesWebApp.Controllers
 
             directorREST.Id = id; // Ensure ID is correct
             var directorDomain = _mapper.Map<Director>(directorREST);
-            await _service.UpdateAsync(directorDomain);
+            try
+            {
+                await _service.UpdateAsync(directorDomain);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
             return await GetAll();
         }
 
@@ -88,9 +102,16 @@ namespace MoviesWebApp.Controllers
         [HttpGet("movies-from-director-{id}")]
         public async Task<IActionResult> GetMoviesFromDirector(Guid id)
         {
-            var director = await _service.GetByIdAsync(id);
-            if (director == null) return NotFound();
-            director.Movies = await _service.GetMoviesFromDirector(id);
+            Director? director = new Director();
+            try
+            {
+                director.Movies = await _service.GetMoviesFromDirector(id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
             List<MovieREST> moviesFromDirectorsREST = new List<MovieREST>();
             foreach (var movie in director.Movies)
             {

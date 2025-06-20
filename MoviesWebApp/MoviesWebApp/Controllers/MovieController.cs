@@ -50,11 +50,20 @@ namespace MoviesWebApp.Controllers
 
             var movieDomain = _mapper.Map<Movie>(movieREST);
 
+            try
+            {
+                await _service.AddAsync(movieDomain);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error creating movie: {ex.Message}");
+            }
             // TODO: Save to database
-            await _service.AddAsync(movieDomain);
+            
 
             // Return mapped DTO from entity
-            var movieResult = _mapper.Map<DirectorREST>(movieDomain);
+            var movieResult = _mapper.Map<MovieREST>(movieDomain);
             return Ok(movieResult);
         }
 
@@ -62,23 +71,43 @@ namespace MoviesWebApp.Controllers
         public async Task<IActionResult> Update(Guid id, MovieREST movieREST)
         {
             if (id != movieREST.Id) return BadRequest("ID mismatch");
-            await _service.UpdateAsync(_mapper.Map<Movie>(movieREST));
+            try
+            {
+                await _service.UpdateAsync(_mapper.Map<Movie>(movieREST));
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error updating movie: {ex.Message}");
+            }
+            
             return await GetAll();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var movie = await _service.GetByIdAsync(id);
+            if (movie == null) return NotFound();
             await _service.DeleteAsync(id);
             return await GetAll();
         }
         [HttpGet("genres-{id}")]
         public async Task<IActionResult> GetGenresOfMovie(Guid id)
         {
-            var movie = await _service.GetGenresOfMovieAsync(id);
+            Movie? movie = null;
+            try
+            {
+                movie = await _service.GetGenresOfMovieAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error retrieving genres: {ex.Message}");
+            }
+            
             List<GenreREST> genresREST = new List<GenreREST>();
-            if (movie == null) return NotFound();
-            if (movie.Genres == null) return NotFound();
+            
             foreach (var genre in movie.Genres)
             {
                 genresREST.Add(_mapper.Map<GenreREST>(genre));
@@ -89,10 +118,19 @@ namespace MoviesWebApp.Controllers
         [HttpGet("reviews-{id}")]
         public async Task<IActionResult> GetReviewsOfMovie(Guid id)
         {
-            var movie = await _service.GetReviewsOfMovieAsync(id);
+            Movie? movie = null;
+            try
+            {
+                movie = await _service.GetReviewsOfMovieAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error retrieving reviews: {ex.Message}");
+            }
+            
             List<ReviewREST> reviewsREST = new List<ReviewREST>();
-            if (movie == null) return NotFound();
-            if (movie.Reviews == null) return NotFound();
+            
             foreach (var review in movie.Reviews)
             {
                 reviewsREST.Add(_mapper.Map<ReviewREST>(review));

@@ -29,10 +29,42 @@ namespace MoviesWebApp.Service
         public async Task AddAsync(Movie movie)
         {
             movie.Id = Guid.NewGuid(); // Assign new ID
+            if(movie.ReleaseYear < 1800 || movie.ReleaseYear > DateTime.Now.Year)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.ReleaseYear), "Release year must be between 1800 and the current year.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Title))
+            {
+                throw new ArgumentException("Movie title cannot be null or empty.", nameof(movie.Title));
+            }
+            if (movie.DurationMinutes <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.DurationMinutes), "Duration must be a positive number.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Description))
+            {
+                throw new ArgumentException("Movie description cannot be null or empty.", nameof(movie.Title));
+            }
             await _repository.AddAsync(movie);
         }
         public async Task UpdateAsync(Movie movie)
         {
+            if (movie.ReleaseYear < 1800 || movie.ReleaseYear > DateTime.Now.Year)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.ReleaseYear), "Release year must be between 1800 and the current year.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Title))
+            {
+                throw new ArgumentException("Movie title cannot be null or empty.", nameof(movie.Title));
+            }
+            if (movie.DurationMinutes <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.DurationMinutes), "Duration must be a positive number.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Description))
+            {
+                throw new ArgumentException("Movie description cannot be null or empty.", nameof(movie.Title));
+            }
             await _repository.UpdateAsync(movie);
         }
         public async Task DeleteAsync(Guid id)
@@ -41,11 +73,21 @@ namespace MoviesWebApp.Service
         }
         public async Task<Movie> GetGenresOfMovieAsync(Guid id)
         {
-            return await _repository.GetGenresOfMovieAsync(id);
+            var movie = await _repository.GetGenresOfMovieAsync(id);
+            if (movie == null || movie.Genres == null)
+            {
+                throw new KeyNotFoundException($"Movie with ID {id} not found.");
+            }
+            return movie;
         }
         public async Task<Movie> GetReviewsOfMovieAsync(Guid id)
         {
-            return await _repository.GetReviewsOfMovieAsync(id);
+            var movie = await _repository.GetReviewsOfMovieAsync(id);
+            if (movie == null || movie.Reviews == null)
+            {
+                throw new KeyNotFoundException($"Movie with ID {id} not found.");
+            }
+            return movie;
         }
     }
 }

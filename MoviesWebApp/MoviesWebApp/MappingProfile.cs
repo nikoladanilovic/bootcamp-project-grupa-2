@@ -13,8 +13,8 @@ public class MappingProfile : Profile
         CreateMap<Review, ReviewREST>()
             .ReverseMap()
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
-        CreateMap<Movie, MovieREST>()
-            .ReverseMap();
+        CreateMap<Movie, MovieREST>();
+        CreateMap<MovieREST, Movie>();
         CreateMap<Director, DirectorREST>();
         CreateMap<DirectorREST, Director>();
 
