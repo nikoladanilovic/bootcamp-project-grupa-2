@@ -93,5 +93,10 @@ namespace MoviesWebApp.Service
             }
             return movie;
         }
+
+        public async Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page)
+        {
+            return await _repository.GetAllMoviesCuratedAsync(releasedYearFilter, ordering, moviesPerPage, page);
+        }
     }
 }

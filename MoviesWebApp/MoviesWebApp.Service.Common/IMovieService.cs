@@ -16,5 +16,7 @@ namespace MoviesWebApp.Service.Common
         Task DeleteAsync(Guid id);
         Task<Movie> GetGenresOfMovieAsync(Guid id);
         Task<Movie> GetReviewsOfMovieAsync(Guid id);
+        Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page);
+
     }
 }

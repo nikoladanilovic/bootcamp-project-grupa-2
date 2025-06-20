@@ -218,5 +218,27 @@ namespace MoviesWebApp.Repository
             }
             return movieWithReviews;
         }
+
+        public async Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page)
+        {
+
+            var movies = new List<Movie>();
+
+            using var conn = CreateConnection();
+            await conn.OpenAsync();
+
+            var cmd = new NpgsqlCommand("SELECT * FROM movies m " +
+                "WHERE m.release_year >= " + releasedYearFilter + 
+                " ORDER BY m.title " + ordering + 
+                " LIMIT " + moviesPerPage + " OFFSET " + ((page - 1) * moviesPerPage) + ";", conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                movies.Add(MapToMovie(reader));
+            }
+
+            return movies;
+        }
     }
 }

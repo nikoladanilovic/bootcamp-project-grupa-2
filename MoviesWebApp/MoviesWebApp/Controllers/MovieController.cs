@@ -140,5 +140,29 @@ namespace MoviesWebApp.Controllers
             }
             return Ok(reviewsREST);
         }
+
+        [HttpGet("curated")]
+        public async Task<IActionResult> GetAllMoviesCurated(
+            int releasedYearFilter = 1900,
+            string ordering = "ASC",
+            int moviesPerPage = 5,
+            int page = 1)
+        {
+            if (moviesPerPage <= 0 || page <= 0)
+            {
+                return BadRequest("Invalid pagination parameters.");
+            }
+            try
+            {
+                var movies = await _service.GetAllMoviesCuratedAsync(releasedYearFilter, ordering, moviesPerPage, page);
+                var moviesREST = _mapper.Map<IEnumerable<MovieREST>>(movies);
+                return Ok(moviesREST);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error retrieving curated movies: {ex.Message}");
+            }
+        }
     }
 }
