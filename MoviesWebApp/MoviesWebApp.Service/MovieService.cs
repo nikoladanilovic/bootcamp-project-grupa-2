@@ -23,6 +23,7 @@ namespace MoviesWebApp.Service
 
         public async Task<IEnumerable<Movie>> GetAllAsync()
         {
+            _logger.LogInformation("Get all available movies - service layer.");
             return await _repository.GetAllAsync();
         }
         public async Task<Movie?> GetByIdAsync(Guid id)

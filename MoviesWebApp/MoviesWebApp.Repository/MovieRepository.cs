@@ -24,6 +24,9 @@ namespace MoviesWebApp.Repository
 
         public async Task<IEnumerable<Movie>> GetAllAsync()
         {
+            //example of logging in repository layer
+            _logger.LogInformation("Get all available movies - repository layer.");
+
             var movies = new List<Movie>();
 
             using var conn = CreateConnection();

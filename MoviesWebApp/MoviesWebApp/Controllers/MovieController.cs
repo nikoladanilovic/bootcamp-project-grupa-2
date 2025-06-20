@@ -27,6 +27,7 @@ namespace MoviesWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            _logger.LogInformation("Get all available movies - controller layer.");
             var moviesREST = new List<MovieREST>();
             var movies = await _service.GetAllAsync();
             foreach (var movie in movies)
