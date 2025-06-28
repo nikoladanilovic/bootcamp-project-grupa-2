@@ -18,5 +18,8 @@ namespace MoviesWebApp.Repository.Common
         Task<Movie> GetGenresOfMovieAsync(Guid id);
         Task<Movie> GetReviewsOfMovieAsync(Guid id);
         Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page);
+        Task<int> GetCountOfAllMoviesAsync();
+
+
     }
 }

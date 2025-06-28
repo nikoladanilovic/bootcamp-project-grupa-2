@@ -164,5 +164,20 @@ namespace MoviesWebApp.Controllers
                 return BadRequest($"Error retrieving curated movies: {ex.Message}");
             }
         }
+
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCountOfAllMovies()
+        {
+            try
+            {
+                int count = await _service.GetCountOfAllMoviesAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error retrieving movie count: {ex.Message}");
+            }
+        }
     }
 }

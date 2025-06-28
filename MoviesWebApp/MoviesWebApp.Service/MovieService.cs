@@ -33,7 +33,7 @@ namespace MoviesWebApp.Service
         public async Task AddAsync(Movie movie)
         {
             movie.Id = Guid.NewGuid(); // Assign new ID
-            if(movie.ReleaseYear < 1800 || movie.ReleaseYear > DateTime.Now.Year)
+            if (movie.ReleaseYear < 1800 || movie.ReleaseYear > DateTime.Now.Year)
             {
                 throw new ArgumentOutOfRangeException(nameof(movie.ReleaseYear), "Release year must be between 1800 and the current year.");
             }
@@ -97,6 +97,11 @@ namespace MoviesWebApp.Service
         public async Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page)
         {
             return await _repository.GetAllMoviesCuratedAsync(releasedYearFilter, ordering, moviesPerPage, page);
+        }
+
+        public async Task<int> GetCountOfAllMoviesAsync()
+        {
+            return await _repository.GetCountOfAllMoviesAsync();
         }
     }
 }

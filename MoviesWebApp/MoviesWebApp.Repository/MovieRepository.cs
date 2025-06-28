@@ -240,5 +240,26 @@ namespace MoviesWebApp.Repository
 
             return movies;
         }
+
+        public async Task<int> GetCountOfAllMoviesAsync()
+        {
+            //example of logging in repository layer
+            _logger.LogInformation("Get all available movies - repository layer.");
+
+            int count = 0;
+
+            using var conn = CreateConnection();
+            await conn.OpenAsync();
+
+            var cmd = new NpgsqlCommand("SELECT count(*) FROM movies", conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                count = reader.GetInt32(0);
+            }
+
+            return count;
+        }
     }
 }

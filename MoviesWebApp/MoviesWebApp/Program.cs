@@ -10,9 +10,18 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
 // Add logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole(); // or AddFile(), AddDebug() etc.
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -51,7 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
