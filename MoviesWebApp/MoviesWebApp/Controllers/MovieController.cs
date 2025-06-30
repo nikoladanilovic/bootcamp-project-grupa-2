@@ -185,7 +185,9 @@ namespace MoviesWebApp.Controllers
             int releasedYearFilter = 1900,
             string ordering = "ASC",
             int moviesPerPage = 5,
-            int page = 1)
+            int page = 1,
+            string genre = "nothing",
+            string nameOfMovie = "nothing")
         {
             if (moviesPerPage <= 0 || page <= 0)
             {
@@ -193,7 +195,7 @@ namespace MoviesWebApp.Controllers
             }
             try
             {
-                var movies = await _service.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page);
+                var movies = await _service.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page, genre, nameOfMovie);
                 var moviesREST = _mapper.Map<IEnumerable<MovieREST>>(movies);
                 return Ok(moviesREST);
             }

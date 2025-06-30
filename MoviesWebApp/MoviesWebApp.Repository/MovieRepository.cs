@@ -267,7 +267,9 @@ namespace MoviesWebApp.Repository
             int releasedYearFilter,
             string ordering,
             int moviesPerPage,
-            int page)
+            int page,
+            string genre,
+            string nameOfMovie)
         {
             var movies = new Dictionary<Guid, Movie>();
 
@@ -279,7 +281,7 @@ namespace MoviesWebApp.Repository
     SELECT *
     FROM movies
     WHERE release_year >= @year
-    ORDER BY title
+    ORDER BY release_year {ordering}
     LIMIT @limit OFFSET @offset
 )
 SELECT
@@ -299,9 +301,10 @@ FROM paged_movies m
 JOIN directors d ON m.director_id = d.id
 JOIN movie_genres mg ON m.id = mg.movie_id
 JOIN genres g ON mg.genre_id = g.id
-ORDER BY m.title, g.name;", conn);
+ORDER BY m.release_year {ordering};", conn);
 
             cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+            cmd.Parameters.AddWithValue("@ordering", ordering);
             cmd.Parameters.AddWithValue("@limit", moviesPerPage);
             cmd.Parameters.AddWithValue("@offset", (page - 1) * moviesPerPage);
 

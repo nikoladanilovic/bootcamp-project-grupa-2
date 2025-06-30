@@ -104,9 +104,25 @@ namespace MoviesWebApp.Service
             return await _repository.GetCountOfAllMoviesAsync();
         }
 
-        public async Task<IEnumerable<Movie>> GetAllMoviesWithDirectorsAndGenres(int releasedYearFilter, string ordering, int moviesPerPage, int page)
+        public async Task<IEnumerable<Movie>> GetAllMoviesWithDirectorsAndGenres(int releasedYearFilter, string ordering, int moviesPerPage, int page, string genre, string nameOfMovie)
         {
-            return await _repository.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page);
+            IEnumerable<Movie> movies = await _repository.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page, genre, nameOfMovie);
+
+            // Select only movies that match the genre criteria
+            if (!string.IsNullOrWhiteSpace(genre) && genre != "nothing")
+            {
+                movies = movies.Where(m => m.Genres.Any(g => g.Name.Equals(genre, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            // Select only movies that match the name criteria
+            if (!string.IsNullOrWhiteSpace(nameOfMovie) && nameOfMovie != "nothing")
+            {
+                movies = movies.Where(m => m.Title.Contains(nameOfMovie, StringComparison.OrdinalIgnoreCase));
+            }
+
+
+            return movies;
+            
         }
     }
 }
