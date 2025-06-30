@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using MoviesWebApp.Model;
 using MoviesWebApp.Repository;
@@ -73,6 +74,23 @@ namespace MoviesWebApp.Controllers
 
             await usersService.CreateUserAsync(users);
             return Ok();
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+                return BadRequest("Email and password are required.");
+
+            var user = await usersService.GetUserByEmailAsync(request.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                return Unauthorized("Invalid email or password.");
+
+            return Ok(new UserREST
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email
+            });
         }
         [HttpPut("update-user")]
         public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UserREST userREST)
