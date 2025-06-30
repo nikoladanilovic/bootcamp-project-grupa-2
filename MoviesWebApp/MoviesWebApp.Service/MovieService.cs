@@ -103,5 +103,10 @@ namespace MoviesWebApp.Service
         {
             return await _repository.GetCountOfAllMoviesAsync();
         }
+
+        public async Task<IEnumerable<Movie>> GetAllMoviesWithDirectorsAndGenres(int releasedYearFilter, string ordering, int moviesPerPage, int page)
+        {
+            return await _repository.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page);
+        }
     }
 }

@@ -179,5 +179,29 @@ namespace MoviesWebApp.Controllers
                 return BadRequest($"Error retrieving movie count: {ex.Message}");
             }
         }
+
+        [HttpGet("with-directors-and-genres")]
+        public async Task<IActionResult> GetAllMoviesWithDirectorsAndGenres(
+            int releasedYearFilter = 1900,
+            string ordering = "ASC",
+            int moviesPerPage = 5,
+            int page = 1)
+        {
+            if (moviesPerPage <= 0 || page <= 0)
+            {
+                return BadRequest("Invalid pagination parameters.");
+            }
+            try
+            {
+                var movies = await _service.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page);
+                var moviesREST = _mapper.Map<IEnumerable<MovieREST>>(movies);
+                return Ok(moviesREST);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error retrieving movies with directors and genres: {ex.Message}");
+            }
+        }
     }
 }
