@@ -350,5 +350,69 @@ ORDER BY m.release_year {ordering};", conn);
             return movies.Values;
         }
 
+
+        public async Task<int> GetMoviesCountWithFilters(
+            int releasedYearFilter,
+            string genre,
+            string nameOfMovie)
+        {
+            NpgsqlCommand cmd;
+
+            using var conn = CreateConnection();
+            await conn.OpenAsync();
+            if (!(genre == "nothing"))
+            {
+                
+
+                cmd = new NpgsqlCommand(@"
+                SELECT COUNT(DISTINCT m.id)
+                FROM movies m
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                WHERE m.release_year >= @year
+                  AND (@genre IS NULL OR g.name ILIKE @genre);", conn);
+
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@genre", string.IsNullOrWhiteSpace(genre) ? DBNull.Value : genre);
+                cmd.Parameters.AddWithValue("@name", string.IsNullOrWhiteSpace(nameOfMovie) ? DBNull.Value : $"%{nameOfMovie}%");
+            }
+            else if (!(nameOfMovie == "nothing"))
+            {
+                
+
+                cmd = new NpgsqlCommand(@"
+                SELECT COUNT(DISTINCT m.id)
+                FROM movies m
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                WHERE m.release_year >= @year
+                  AND (@name IS NULL OR m.title ILIKE @name);", conn);
+
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@genre", string.IsNullOrWhiteSpace(genre) ? DBNull.Value : genre);
+                cmd.Parameters.AddWithValue("@name", string.IsNullOrWhiteSpace(nameOfMovie) ? DBNull.Value : $"%{nameOfMovie}%");
+            }
+            else
+            {
+                
+
+                cmd = new NpgsqlCommand(@"
+                SELECT COUNT(DISTINCT m.id)
+                FROM movies m
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                WHERE m.release_year >= @year;", conn);
+
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@genre", string.IsNullOrWhiteSpace(genre) ? DBNull.Value : genre);
+                cmd.Parameters.AddWithValue("@name", string.IsNullOrWhiteSpace(nameOfMovie) ? DBNull.Value : $"%{nameOfMovie}%");
+            }
+
+                
+
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
+        }
+
     }
 }

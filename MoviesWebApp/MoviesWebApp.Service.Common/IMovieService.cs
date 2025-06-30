@@ -19,5 +19,8 @@ namespace MoviesWebApp.Service.Common
         Task<IEnumerable<Movie>> GetAllMoviesCuratedAsync(int releasedYearFilter, string ordering, int moviesPerPage, int page);
         Task<int> GetCountOfAllMoviesAsync();
         Task<IEnumerable<Movie>> GetAllMoviesWithDirectorsAndGenres(int releasedYearFilter, string ordering, int moviesPerPage, int page, string genre, string nameOfMovie);
+        Task<int> GetMoviesCountWithFilters(int releasedYearFilter, string genre, string nameOfMovie);
+
+
     }
 }

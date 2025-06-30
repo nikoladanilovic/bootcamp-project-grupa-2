@@ -124,5 +124,10 @@ namespace MoviesWebApp.Service
             return movies;
             
         }
+
+        public async Task<int> GetMoviesCountWithFilters(int releasedYearFilter, string genre, string nameOfMovie)
+        {
+            return await _repository.GetMoviesCountWithFilters(releasedYearFilter, genre, nameOfMovie);
+        }
     }
 }

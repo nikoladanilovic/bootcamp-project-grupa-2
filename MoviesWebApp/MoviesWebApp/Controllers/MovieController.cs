@@ -166,11 +166,11 @@ namespace MoviesWebApp.Controllers
         }
 
         [HttpGet("count")]
-        public async Task<IActionResult> GetCountOfAllMovies()
+        public async Task<IActionResult> GetCountOfAllMovies(int releasedYearFilter = 1900, string genre = "nothing", string nameOfMovie = "nothing")
         {
             try
             {
-                int count = await _service.GetCountOfAllMoviesAsync();
+                int count = await _service.GetMoviesCountWithFilters(releasedYearFilter, genre, nameOfMovie);
                 return Ok(count);
             }
             catch (Exception ex)
