@@ -284,7 +284,7 @@ namespace MoviesWebApp.Repository
     ORDER BY release_year {ordering}
 )
 SELECT
-    m.id AS movie_id,
+    DISTINCT m.id AS movie_id,
     m.title AS movie_title,
     m.release_year,
     m.duration_minutes,
@@ -300,7 +300,8 @@ FROM paged_movies m
 JOIN directors d ON m.director_id = d.id
 JOIN movie_genres mg ON m.id = mg.movie_id
 JOIN genres g ON mg.genre_id = g.id
-ORDER BY m.release_year {ordering};", conn);
+ORDER BY m.release_year {ordering}
+LIMIT @limit OFFSET @offset;", conn);
 
             cmd.Parameters.AddWithValue("@year", releasedYearFilter);
             cmd.Parameters.AddWithValue("@ordering", ordering);
@@ -346,7 +347,7 @@ ORDER BY m.release_year {ordering};", conn);
                 }
             }
 
-            return movies.Values.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
+            return movies.Values; //.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
         }
 
 
