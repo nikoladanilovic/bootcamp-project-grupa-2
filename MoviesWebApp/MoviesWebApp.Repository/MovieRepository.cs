@@ -300,8 +300,7 @@ FROM paged_movies m
 JOIN directors d ON m.director_id = d.id
 JOIN movie_genres mg ON m.id = mg.movie_id
 JOIN genres g ON mg.genre_id = g.id
-ORDER BY m.release_year {ordering}
-LIMIT @limit OFFSET @offset;", conn);
+ORDER BY m.release_year {ordering};", conn);
 
             cmd.Parameters.AddWithValue("@year", releasedYearFilter);
             cmd.Parameters.AddWithValue("@ordering", ordering);
@@ -347,7 +346,7 @@ LIMIT @limit OFFSET @offset;", conn);
                 }
             }
 
-            return movies.Values;
+            return movies.Values.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
         }
 
 
