@@ -70,6 +70,42 @@ namespace MoviesWebApp.Controllers
             return Ok(movieResult);
         }
 
+        [HttpPost("with-genres")]
+        public async Task<IActionResult> CreateWithGenres(MovieREST movieREST)
+        {
+            //await _service.AddAsync(movie);
+            //return CreatedAtAction(nameof(GetById), new { id = movie.Id }, movie);
+
+            var movieDomain = _mapper.Map<Movie>(movieREST);
+
+            try
+            {
+                _logger.LogInformation(movieDomain.Genres[0].Name);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                _logger.LogInformation("nema zanrova");
+            }
+
+
+            try
+            {
+                await _service.AddMovieWithGenresAsync(movieDomain);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not implemented here)
+                return BadRequest($"Error creating movie: {ex.Message}");
+            }
+            // TODO: Save to database
+
+
+            // Return mapped DTO from entity
+            var movieResult = _mapper.Map<MovieREST>(movieDomain);
+            return Ok(movieResult);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, MovieREST movieREST)
         {

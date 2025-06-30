@@ -129,5 +129,26 @@ namespace MoviesWebApp.Service
         {
             return await _repository.GetMoviesCountWithFilters(releasedYearFilter, genre, nameOfMovie);
         }
+
+        public async Task AddMovieWithGenresAsync(Movie movie)
+        {
+            if (movie.ReleaseYear < 1800 || movie.ReleaseYear > DateTime.Now.Year)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.ReleaseYear), "Release year must be between 1800 and the current year.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Title))
+            {
+                throw new ArgumentException("Movie title cannot be null or empty.", nameof(movie.Title));
+            }
+            if (movie.DurationMinutes <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(movie.DurationMinutes), "Duration must be a positive number.");
+            }
+            if (string.IsNullOrWhiteSpace(movie.Description))
+            {
+                throw new ArgumentException("Movie description cannot be null or empty.", nameof(movie.Title));
+            }
+            await _repository.AddMovieWithGenresAsync(movie);
+        }
     }
 }

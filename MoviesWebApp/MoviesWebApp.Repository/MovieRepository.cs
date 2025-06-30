@@ -13,7 +13,7 @@ namespace MoviesWebApp.Repository
 {
     public class MovieRepository : IMovieRepository
     {
-        
+
         private readonly string _connectionString;
         private readonly ILogger<MovieRepository> _logger;
         public MovieRepository(string connectionString, ILogger<MovieRepository> logger)
@@ -229,8 +229,8 @@ namespace MoviesWebApp.Repository
             await conn.OpenAsync();
 
             var cmd = new NpgsqlCommand("SELECT * FROM movies m " +
-                "WHERE m.release_year >= " + releasedYearFilter + 
-                " ORDER BY m.title " + ordering + 
+                "WHERE m.release_year >= " + releasedYearFilter +
+                " ORDER BY m.title " + ordering +
                 " LIMIT " + moviesPerPage + " OFFSET " + ((page - 1) * moviesPerPage) + ";", conn);
             using var reader = await cmd.ExecuteReaderAsync();
 
@@ -277,12 +277,11 @@ namespace MoviesWebApp.Repository
             await conn.OpenAsync();
 
             var cmd = new NpgsqlCommand($@"
-            WITH paged_movies AS (
+    WITH paged_movies AS (
     SELECT *
     FROM movies
     WHERE release_year >= @year
     ORDER BY release_year {ordering}
-    LIMIT @limit OFFSET @offset
 )
 SELECT
     m.id AS movie_id,
@@ -300,7 +299,9 @@ SELECT
 FROM paged_movies m
 JOIN directors d ON m.director_id = d.id
 JOIN movie_genres mg ON m.id = mg.movie_id
-JOIN genres g ON mg.genre_id = g.id;", conn);
+JOIN genres g ON mg.genre_id = g.id
+ORDER BY m.release_year {ordering}
+LIMIT @limit OFFSET @offset;", conn);
 
             cmd.Parameters.AddWithValue("@year", releasedYearFilter);
             cmd.Parameters.AddWithValue("@ordering", ordering);
@@ -361,7 +362,7 @@ JOIN genres g ON mg.genre_id = g.id;", conn);
             await conn.OpenAsync();
             if (!(genre == "nothing"))
             {
-                
+
 
                 cmd = new NpgsqlCommand(@"
                 SELECT COUNT(DISTINCT m.id)
@@ -377,7 +378,7 @@ JOIN genres g ON mg.genre_id = g.id;", conn);
             }
             else if (!(nameOfMovie == "nothing"))
             {
-                
+
 
                 cmd = new NpgsqlCommand(@"
                 SELECT COUNT(DISTINCT m.id)
@@ -393,7 +394,7 @@ JOIN genres g ON mg.genre_id = g.id;", conn);
             }
             else
             {
-                
+
 
                 cmd = new NpgsqlCommand(@"
                 SELECT COUNT(DISTINCT m.id)
@@ -407,11 +408,51 @@ JOIN genres g ON mg.genre_id = g.id;", conn);
                 cmd.Parameters.AddWithValue("@name", string.IsNullOrWhiteSpace(nameOfMovie) ? DBNull.Value : $"%{nameOfMovie}%");
             }
 
-                
+
 
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result);
         }
 
+        public async Task AddMovieWithGenresAsync(Movie movie)
+        {
+            var movieId = Guid.NewGuid();
+
+            using var conn = CreateConnection();
+            await conn.OpenAsync();
+            using var tx = await conn.BeginTransactionAsync();
+
+            try
+            {
+                // Insert movie
+                var movieCmd = new NpgsqlCommand(@"
+            INSERT INTO movies (id, title, release_year, duration_minutes, director_id, description)
+            VALUES (@id, @title, @year, @duration, @director, @desc)", conn);
+                movieCmd.Parameters.AddWithValue("@id", movieId);
+                movieCmd.Parameters.AddWithValue("@title", movie.Title);
+                movieCmd.Parameters.AddWithValue("@year", movie.ReleaseYear);
+                movieCmd.Parameters.AddWithValue("@duration", movie.DurationMinutes);
+                movieCmd.Parameters.AddWithValue("@director", movie.DirectorId);
+                movieCmd.Parameters.AddWithValue("@desc", (object?)movie.Description ?? DBNull.Value);
+                await movieCmd.ExecuteNonQueryAsync();
+
+                // Insert movie_genres
+                foreach (var genre in movie.Genres)
+                {
+                    var genreCmd = new NpgsqlCommand(@"
+                INSERT INTO movie_genres (movie_id, genre_id)
+                VALUES (@movieId, @genreId)", conn);
+                    genreCmd.Parameters.AddWithValue("@movieId", movieId);
+                    genreCmd.Parameters.AddWithValue("@genreId", genre.Id);
+                    await genreCmd.ExecuteNonQueryAsync();
+                }
+
+                await tx.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+            }
+        }
     }
 }
