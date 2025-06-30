@@ -108,18 +108,17 @@ namespace MoviesWebApp.Service
         {
             IEnumerable<Movie> movies = await _repository.GetAllMoviesWithDirectorsAndGenres(releasedYearFilter, ordering, moviesPerPage, page, genre, nameOfMovie);
 
-            // Select only movies that match the genre criteria
-            if (!string.IsNullOrWhiteSpace(genre) && genre != "nothing")
-            {
-                movies = movies.Where(m => m.Genres.Any(g => g.Name.Equals(genre, StringComparison.OrdinalIgnoreCase)));
-            }
+            ////Check if movie is of genre specified
 
-            // Select only movies that match the name criteria
-            if (!string.IsNullOrWhiteSpace(nameOfMovie) && nameOfMovie != "nothing")
-            {
-                movies = movies.Where(m => m.Title.Contains(nameOfMovie, StringComparison.OrdinalIgnoreCase));
-            }
-
+            //if (!string.IsNullOrWhiteSpace(genre) && !(genre == "nothing") )
+            //{
+            //    movies = movies.Where(m => m.Genres != null && m.Genres.Any(g => g.Name.Equals(genre, StringComparison.OrdinalIgnoreCase)));
+            //}
+            ////Check if movie title contains the specified name
+            //if (!string.IsNullOrWhiteSpace(nameOfMovie) && !(nameOfMovie == "nothing"))
+            //{
+            //    movies = movies.Where(m => m.Title != null && m.Title.Contains(nameOfMovie, StringComparison.OrdinalIgnoreCase));
+            //}
 
             return movies;
             

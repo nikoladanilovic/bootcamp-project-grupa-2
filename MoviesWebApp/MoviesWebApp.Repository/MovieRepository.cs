@@ -276,78 +276,229 @@ namespace MoviesWebApp.Repository
             using var conn = CreateConnection();
             await conn.OpenAsync();
 
-            var cmd = new NpgsqlCommand($@"
-    WITH paged_movies AS (
-    SELECT *
-    FROM movies
-    WHERE release_year >= @year
-    ORDER BY release_year {ordering}
-)
-SELECT
-    DISTINCT m.id AS movie_id,
-    m.title AS movie_title,
-    m.release_year,
-    m.duration_minutes,
-    m.director_id,
-    m.description,
-    d.id AS director_id,
-    d.name AS director_name,
-    d.birthdate AS director_birthdate,
-    d.nationality AS director_nationality,
-    g.id AS genre_id,
-    g.name AS genre_name
-FROM paged_movies m
-JOIN directors d ON m.director_id = d.id
-JOIN movie_genres mg ON m.id = mg.movie_id
-JOIN genres g ON mg.genre_id = g.id
-ORDER BY m.release_year {ordering}
-LIMIT @limit OFFSET @offset;", conn);
+            NpgsqlCommand cmd;
 
-            cmd.Parameters.AddWithValue("@year", releasedYearFilter);
-            cmd.Parameters.AddWithValue("@ordering", ordering);
-            cmd.Parameters.AddWithValue("@limit", moviesPerPage);
-            cmd.Parameters.AddWithValue("@offset", (page - 1) * moviesPerPage);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
+            if (!(genre == "nothing"))
             {
-                var movieId = reader.GetGuid(reader.GetOrdinal("movie_id"));
+                cmd = new NpgsqlCommand($@"
+                WITH paged_movies AS (
+                SELECT *
+                FROM movies
+                WHERE release_year >= @year
+                ORDER BY release_year {ordering}
+                )
+                SELECT
+                DISTINCT m.id AS movie_id,
+                m.title AS movie_title,
+                m.release_year,
+                m.duration_minutes,
+                m.director_id,
+                m.description,
+                d.id AS director_id,
+                d.name AS director_name,
+                d.birthdate AS director_birthdate,
+                d.nationality AS director_nationality,
+                g.id AS genre_id,
+                g.name AS genre_name
+                FROM paged_movies m
+                JOIN directors d ON m.director_id = d.id
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                WHERE @genre IS NULL OR g.name ILIKE @genre
+                ORDER BY m.release_year {ordering};", conn);
 
-                if (!movies.TryGetValue(movieId, out var movie))
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@ordering", ordering);
+                cmd.Parameters.AddWithValue("@limit", moviesPerPage);
+                cmd.Parameters.AddWithValue("@genre", string.IsNullOrWhiteSpace(genre) ? DBNull.Value : genre);
+                cmd.Parameters.AddWithValue("@offset", (page - 1) * moviesPerPage);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
                 {
-                    movie = new Movie
+                    var movieId = reader.GetGuid(reader.GetOrdinal("movie_id"));
+
+                    if (!movies.TryGetValue(movieId, out var movie))
                     {
-                        Id = movieId,
-                        Title = reader.GetString(reader.GetOrdinal("movie_title")),
-                        ReleaseYear = reader.GetInt32(reader.GetOrdinal("release_year")),
-                        DurationMinutes = reader.GetInt32(reader.GetOrdinal("duration_minutes")),
-                        DirectorId = reader.GetGuid(reader.GetOrdinal("director_id")),
-                        Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
-                        Director = new Director
+                        movie = new Movie
                         {
-                            Id = reader.GetGuid(reader.GetOrdinal("director_id")),
-                            Name = reader.GetString(reader.GetOrdinal("director_name")),
-                            Birthdate = reader.IsDBNull(reader.GetOrdinal("director_birthdate")) ? null : reader.GetDateTime(reader.GetOrdinal("director_birthdate")),
-                            Nationality = reader.IsDBNull(reader.GetOrdinal("director_nationality")) ? null : reader.GetString(reader.GetOrdinal("director_nationality"))
-                        },
-                        Genres = new List<Genre>()
-                    };
+                            Id = movieId,
+                            Title = reader.GetString(reader.GetOrdinal("movie_title")),
+                            ReleaseYear = reader.GetInt32(reader.GetOrdinal("release_year")),
+                            DurationMinutes = reader.GetInt32(reader.GetOrdinal("duration_minutes")),
+                            DirectorId = reader.GetGuid(reader.GetOrdinal("director_id")),
+                            Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
+                            Director = new Director
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("director_id")),
+                                Name = reader.GetString(reader.GetOrdinal("director_name")),
+                                Birthdate = reader.IsDBNull(reader.GetOrdinal("director_birthdate")) ? null : reader.GetDateTime(reader.GetOrdinal("director_birthdate")),
+                                Nationality = reader.IsDBNull(reader.GetOrdinal("director_nationality")) ? null : reader.GetString(reader.GetOrdinal("director_nationality"))
+                            },
+                            Genres = new List<Genre>()
+                        };
 
-                    movies.Add(movieId, movie);
-                }
+                        movies.Add(movieId, movie);
+                    }
 
-                var genreId = reader.GetGuid(reader.GetOrdinal("genre_id"));
-                if (!movie.Genres.Any(g => g.Id == genreId))
-                {
-                    movie.Genres.Add(new Genre
+                    var genreId = reader.GetGuid(reader.GetOrdinal("genre_id"));
+                    if (!movie.Genres.Any(g => g.Id == genreId))
                     {
-                        Id = genreId,
-                        Name = reader.GetString(reader.GetOrdinal("genre_name"))
-                    });
+                        movie.Genres.Add(new Genre
+                        {
+                            Id = genreId,
+                            Name = reader.GetString(reader.GetOrdinal("genre_name"))
+                        });
+                    }
+                }
+            }
+            else if (!(nameOfMovie == "nothing"))
+            {
+                cmd = new NpgsqlCommand($@"
+                WITH paged_movies AS (
+                SELECT *
+                FROM movies
+                WHERE release_year >= @year
+                ORDER BY release_year {ordering}
+                )
+                SELECT
+                DISTINCT m.id AS movie_id,
+                m.title AS movie_title,
+                m.release_year,
+                m.duration_minutes,
+                m.director_id,
+                m.description,
+                d.id AS director_id,
+                d.name AS director_name,
+                d.birthdate AS director_birthdate,
+                d.nationality AS director_nationality,
+                g.id AS genre_id,
+                g.name AS genre_name
+                FROM paged_movies m
+                JOIN directors d ON m.director_id = d.id
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                WHERE @name IS NULL OR m.title ILIKE @name
+                ORDER BY m.release_year {ordering};", conn);
+
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@ordering", ordering);
+                cmd.Parameters.AddWithValue("@limit", moviesPerPage);
+                cmd.Parameters.AddWithValue("@offset", (page - 1) * moviesPerPage);
+                cmd.Parameters.AddWithValue("@name", string.IsNullOrWhiteSpace(nameOfMovie) ? DBNull.Value : $"%{nameOfMovie}%");
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var movieId = reader.GetGuid(reader.GetOrdinal("movie_id"));
+
+                    if (!movies.TryGetValue(movieId, out var movie))
+                    {
+                        movie = new Movie
+                        {
+                            Id = movieId,
+                            Title = reader.GetString(reader.GetOrdinal("movie_title")),
+                            ReleaseYear = reader.GetInt32(reader.GetOrdinal("release_year")),
+                            DurationMinutes = reader.GetInt32(reader.GetOrdinal("duration_minutes")),
+                            DirectorId = reader.GetGuid(reader.GetOrdinal("director_id")),
+                            Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
+                            Director = new Director
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("director_id")),
+                                Name = reader.GetString(reader.GetOrdinal("director_name")),
+                                Birthdate = reader.IsDBNull(reader.GetOrdinal("director_birthdate")) ? null : reader.GetDateTime(reader.GetOrdinal("director_birthdate")),
+                                Nationality = reader.IsDBNull(reader.GetOrdinal("director_nationality")) ? null : reader.GetString(reader.GetOrdinal("director_nationality"))
+                            },
+                            Genres = new List<Genre>()
+                        };
+
+                        movies.Add(movieId, movie);
+                    }
+
+                    var genreId = reader.GetGuid(reader.GetOrdinal("genre_id"));
+                    if (!movie.Genres.Any(g => g.Id == genreId))
+                    {
+                        movie.Genres.Add(new Genre
+                        {
+                            Id = genreId,
+                            Name = reader.GetString(reader.GetOrdinal("genre_name"))
+                        });
+                    }
+                }
+            } else
+            {
+                cmd = new NpgsqlCommand($@"
+                WITH paged_movies AS (
+                SELECT *
+                FROM movies
+                WHERE release_year >= @year
+                ORDER BY release_year {ordering}
+                )
+                SELECT
+                DISTINCT m.id AS movie_id,
+                m.title AS movie_title,
+                m.release_year,
+                m.duration_minutes,
+                m.director_id,
+                m.description,
+                d.id AS director_id,
+                d.name AS director_name,
+                d.birthdate AS director_birthdate,
+                d.nationality AS director_nationality,
+                g.id AS genre_id,
+                g.name AS genre_name
+                FROM paged_movies m
+                JOIN directors d ON m.director_id = d.id
+                JOIN movie_genres mg ON m.id = mg.movie_id
+                JOIN genres g ON mg.genre_id = g.id
+                ORDER BY m.release_year {ordering};", conn);
+
+                cmd.Parameters.AddWithValue("@year", releasedYearFilter);
+                cmd.Parameters.AddWithValue("@ordering", ordering);
+                cmd.Parameters.AddWithValue("@limit", moviesPerPage);
+                cmd.Parameters.AddWithValue("@offset", (page - 1) * moviesPerPage);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var movieId = reader.GetGuid(reader.GetOrdinal("movie_id"));
+
+                    if (!movies.TryGetValue(movieId, out var movie))
+                    {
+                        movie = new Movie
+                        {
+                            Id = movieId,
+                            Title = reader.GetString(reader.GetOrdinal("movie_title")),
+                            ReleaseYear = reader.GetInt32(reader.GetOrdinal("release_year")),
+                            DurationMinutes = reader.GetInt32(reader.GetOrdinal("duration_minutes")),
+                            DirectorId = reader.GetGuid(reader.GetOrdinal("director_id")),
+                            Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
+                            Director = new Director
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("director_id")),
+                                Name = reader.GetString(reader.GetOrdinal("director_name")),
+                                Birthdate = reader.IsDBNull(reader.GetOrdinal("director_birthdate")) ? null : reader.GetDateTime(reader.GetOrdinal("director_birthdate")),
+                                Nationality = reader.IsDBNull(reader.GetOrdinal("director_nationality")) ? null : reader.GetString(reader.GetOrdinal("director_nationality"))
+                            },
+                            Genres = new List<Genre>()
+                        };
+
+                        movies.Add(movieId, movie);
+                    }
+
+                    var genreId = reader.GetGuid(reader.GetOrdinal("genre_id"));
+                    if (!movie.Genres.Any(g => g.Id == genreId))
+                    {
+                        movie.Genres.Add(new Genre
+                        {
+                            Id = genreId,
+                            Name = reader.GetString(reader.GetOrdinal("genre_name"))
+                        });
+                    }
                 }
             }
 
-            return movies.Values; //.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
+            return movies.Values.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
         }
 
 
