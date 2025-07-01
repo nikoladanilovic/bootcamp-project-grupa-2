@@ -10,6 +10,7 @@ namespace MoviesWebApp.Repository.Common
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(Guid id);
         Task<bool> UsernameExistsAsync(string username);
+        public Task<User> GetUserByEmailAsync(string email);
         Task<bool> EmailExistsAsync(string email);
         Task CreateUserAsync(List<User> users);
         Task<bool> UpdateUserAsync(Guid id, User user);

@@ -1,9 +1,9 @@
-﻿using MoviesWebApp.Repository.Common;
+﻿using MoviesWebApp.Model;
+using MoviesWebApp.Repository.Common;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MoviesWebApp.Model;
-using Npgsql;
 
 namespace MoviesWebApp.Repository
 {
@@ -49,6 +49,33 @@ namespace MoviesWebApp.Repository
                 using (var cmd = new NpgsqlCommand("SELECT * FROM \"users\" WHERE \"id\" = @Id", conn))
                 {
                     cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new User
+                            {
+                                Id = reader.GetGuid(0),
+                                Username = reader.IsDBNull(1) ? null : reader.GetString(1),
+                                Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                CreatedAt = reader.GetDateTime(3),
+                                Password = reader.IsDBNull(4) ? null : reader.GetString(4)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            using (var conn = new NpgsqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand("SELECT * FROM \"users\" WHERE \"email\" = @Email", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Email", email);
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())

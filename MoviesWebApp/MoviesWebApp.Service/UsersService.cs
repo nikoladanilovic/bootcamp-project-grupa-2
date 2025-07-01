@@ -1,10 +1,10 @@
-﻿using MoviesWebApp.Service.Common;
+﻿using BCrypt.Net;
+using MoviesWebApp.Model;
+using MoviesWebApp.Repository.Common;
+using MoviesWebApp.Service.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MoviesWebApp.Model;
-using MoviesWebApp.Repository.Common;
-using BCrypt.Net;
 
 namespace MoviesWebApp.Service
 {
@@ -25,6 +25,11 @@ namespace MoviesWebApp.Service
         public async Task<User> GetUserByIdAsync(Guid id)
         {
             return await _usersRepository.GetUserByIdAsync(id);
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            return await _usersRepository.GetUserByEmailAsync(email);
         }
 
         public async Task CreateUserAsync(List<User> users)
@@ -69,7 +74,7 @@ namespace MoviesWebApp.Service
             if (!string.IsNullOrEmpty(user.Password))
                 user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             else
-                user.Password = existingUser.Password; 
+                user.Password = existingUser.Password;
 
             return await _usersRepository.UpdateUserAsync(id, user);
         }
