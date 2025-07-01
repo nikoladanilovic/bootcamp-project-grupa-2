@@ -501,7 +501,7 @@ namespace MoviesWebApp.Repository
             return movies.Values.Skip((page - 1) * moviesPerPage).Take(moviesPerPage).ToList();
         }
 
-
+        /// This method counts the number of movies based on the provided filters.
         public async Task<int> GetMoviesCountWithFilters(
             int releasedYearFilter,
             string genre,
