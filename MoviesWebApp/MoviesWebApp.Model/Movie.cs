@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,5 +18,7 @@ namespace MoviesWebApp.Model
         public Director? Director { get; set; } = null!;
         public List<Genre>? Genres { get; set; } = null!;
         public List<Review>? Reviews { get; set; } = null!;
+        public List<Actor>? Actors { get; set; } = new();
+
     }
 }

@@ -8,12 +8,10 @@ namespace MoviesWebApp
     {
         public AutoMapperProfile()
         {
-            CreateMap<Genre, GenreREST>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name ?? "Unknown"));
-            CreateMap<GenreREST, Genre>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.MovieGenres, opt => opt.Ignore());
-           
+            CreateMap<Genre, GenreREST>().ReverseMap();
+            CreateMap<Director, DirectorREST>().ReverseMap();
+            CreateMap<Actor, ActorREST>().ReverseMap();
+            CreateMap<Movie, MovieREST>().ReverseMap();
         }
     }
 }

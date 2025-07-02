@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -49,18 +50,93 @@ namespace MoviesWebApp.Repository
             using var conn = CreateConnection();
             await conn.OpenAsync();
 
-            var cmd = new NpgsqlCommand("SELECT * FROM movies WHERE id = @id", conn);
+            // Dohvati film, direktora i žanrove
+            var cmd = new NpgsqlCommand(@"
+        SELECT 
+            m.id, m.title, m.release_year, m.duration_minutes, m.director_id, m.description,
+            d.id as director_id, d.name as director_name, d.birthdate as director_birthdate, d.nationality as director_nationality,
+            g.id as genre_id, g.name as genre_name
+        FROM movies m
+        JOIN directors d ON m.director_id = d.id
+        LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+        LEFT JOIN genres g ON mg.genre_id = g.id
+        WHERE m.id = @id", conn);
             cmd.Parameters.AddWithValue("id", id);
 
-            using var reader = await cmd.ExecuteReaderAsync();
-            if (await reader.ReadAsync())
+            Movie? movie = null;
+
+            using (var reader = await cmd.ExecuteReaderAsync())
             {
-                return MapToMovie(reader);
+                while (await reader.ReadAsync())
+                {
+                    if (movie == null)
+                    {
+                        movie = new Movie
+                        {
+                            Id = reader.GetGuid(reader.GetOrdinal("id")),
+                            Title = reader.GetString(reader.GetOrdinal("title")),
+                            ReleaseYear = reader.GetInt32(reader.GetOrdinal("release_year")),
+                            DurationMinutes = reader.GetInt32(reader.GetOrdinal("duration_minutes")),
+                            DirectorId = reader.GetGuid(reader.GetOrdinal("director_id")),
+                            Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
+                            Director = new Director
+                            {
+                                Id = reader.GetGuid(reader.GetOrdinal("director_id")),
+                                Name = reader.GetString(reader.GetOrdinal("director_name")),
+                                Birthdate = reader.IsDBNull(reader.GetOrdinal("director_birthdate")) ? null : reader.GetDateTime(reader.GetOrdinal("director_birthdate")),
+                                Nationality = reader.IsDBNull(reader.GetOrdinal("director_nationality")) ? null : reader.GetString(reader.GetOrdinal("director_nationality"))
+                            },
+                            Genres = new List<Genre>(),
+                            Actors = new List<Actor>()
+                        };
+                    }
+
+                    if (!reader.IsDBNull(reader.GetOrdinal("genre_id")))
+                    {
+                        var genreId = reader.GetGuid(reader.GetOrdinal("genre_id"));
+                        if (!movie.Genres.Any(g => g.Id == genreId))
+                        {
+                            movie.Genres.Add(new Genre
+                            {
+                                Id = genreId,
+                                Name = reader.GetString(reader.GetOrdinal("genre_name"))
+                            });
+                        }
+                    }
+                }
             }
 
-            return null;
-        }
+            if (movie == null)
+                return null;
 
+            // NOVO: Otvori novi connection za glumce!
+            using (var conn2 = CreateConnection())
+            {
+                await conn2.OpenAsync();
+                var actorsCmd = new NpgsqlCommand(@"
+            SELECT a.id, a.name, a.birthdate, a.nationality
+            FROM actors a
+            JOIN movie_actors ma ON a.id = ma.actor_id
+            WHERE ma.movie_id = @id", conn2);
+                actorsCmd.Parameters.AddWithValue("id", id);
+
+                using (var actorsReader = await actorsCmd.ExecuteReaderAsync())
+                {
+                    while (await actorsReader.ReadAsync())
+                    {
+                        movie.Actors.Add(new Actor
+                        {
+                            Id = actorsReader.GetGuid(0),
+                            Name = actorsReader.GetString(1),
+                            Birthdate = actorsReader.IsDBNull(2) ? null : actorsReader.GetDateTime(2),
+                            Nationality = actorsReader.IsDBNull(3) ? null : actorsReader.GetString(3)
+                        });
+                    }
+                }
+            }
+
+            return movie;
+        }
         public async Task AddAsync(Movie movie)
         {
             using var conn = CreateConnection();
@@ -109,9 +185,22 @@ namespace MoviesWebApp.Repository
             using var conn = CreateConnection();
             await conn.OpenAsync();
 
+            // Prvo obriši povezane zapise!
+            var deleteActors = new NpgsqlCommand("DELETE FROM movie_actors WHERE movie_id = @id", conn);
+            deleteActors.Parameters.AddWithValue("id", id);
+            await deleteActors.ExecuteNonQueryAsync();
+
+            var deleteGenres = new NpgsqlCommand("DELETE FROM movie_genres WHERE movie_id = @id", conn);
+            deleteGenres.Parameters.AddWithValue("id", id);
+            await deleteGenres.ExecuteNonQueryAsync();
+
+            var deleteReviews = new NpgsqlCommand("DELETE FROM reviews WHERE movie_id = @id", conn);
+            deleteReviews.Parameters.AddWithValue("id", id);
+            await deleteReviews.ExecuteNonQueryAsync();
+
+            // Sada možeš obrisati film
             var cmd = new NpgsqlCommand("DELETE FROM movies WHERE id = @id", conn);
             cmd.Parameters.AddWithValue("id", id);
-
             await cmd.ExecuteNonQueryAsync();
         }
 
@@ -598,11 +687,26 @@ namespace MoviesWebApp.Repository
                     await genreCmd.ExecuteNonQueryAsync();
                 }
 
+                // Insert movie_actors (DODAJ OVO!)
+                if (movie.Actors != null)
+                {
+                    foreach (var actor in movie.Actors)
+                    {
+                        var actorCmd = new NpgsqlCommand(@"
+                    INSERT INTO movie_actors (movie_id, actor_id)
+                    VALUES (@movieId, @actorId)", conn);
+                        actorCmd.Parameters.AddWithValue("@movieId", movieId);
+                        actorCmd.Parameters.AddWithValue("@actorId", actor.Id);
+                        await actorCmd.ExecuteNonQueryAsync();
+                    }
+                }
+
                 await tx.CommitAsync();
             }
             catch (Exception ex)
             {
                 await tx.RollbackAsync();
+                throw;
             }
         }
     }

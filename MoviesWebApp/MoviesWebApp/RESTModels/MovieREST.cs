@@ -1,4 +1,5 @@
 ﻿using MoviesWebApp.Model;
+using System.Collections.Generic;
 
 namespace MoviesWebApp.RESTModels
 {
@@ -13,5 +14,6 @@ namespace MoviesWebApp.RESTModels
         public Director? Director { get; set; } = null!;
         public List<Genre>? Genres { get; set; } = null!;
         public List<Review>? Reviews { get; set; } = null!;
+        public List<ActorREST>? Actors { get; set; } = new();
     }
 }
