@@ -27,9 +27,9 @@ namespace MoviesWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(string? search = null, int page = 1, int pageSize = 4)
         {
-            var directors = await _service.GetAllAsync();
+            var directors = await _service.GetAllAsync(search, page, pageSize);
             List<DirectorREST> directorsREST = new List<DirectorREST>();
             foreach (var director in directors)
             {

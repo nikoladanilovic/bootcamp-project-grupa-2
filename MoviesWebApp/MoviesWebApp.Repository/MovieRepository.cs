@@ -185,7 +185,6 @@ namespace MoviesWebApp.Repository
             using var conn = CreateConnection();
             await conn.OpenAsync();
 
-            // Prvo obriši povezane zapise!
             var deleteActors = new NpgsqlCommand("DELETE FROM movie_actors WHERE movie_id = @id", conn);
             deleteActors.Parameters.AddWithValue("id", id);
             await deleteActors.ExecuteNonQueryAsync();
@@ -198,7 +197,6 @@ namespace MoviesWebApp.Repository
             deleteReviews.Parameters.AddWithValue("id", id);
             await deleteReviews.ExecuteNonQueryAsync();
 
-            // Sada možeš obrisati film
             var cmd = new NpgsqlCommand("DELETE FROM movies WHERE id = @id", conn);
             cmd.Parameters.AddWithValue("id", id);
             await cmd.ExecuteNonQueryAsync();

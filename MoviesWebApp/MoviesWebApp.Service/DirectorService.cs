@@ -24,9 +24,9 @@ namespace MoviesWebApp.Service
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Director>> GetAllAsync()
+        public async Task<IEnumerable<Director>> GetAllAsync(string? search, int page, int pageSize)
         {
-            return await _repository.GetAllAsync();
+            return await _repository.GetAllAsync(search, page, pageSize);
         }
         public async Task<Director?> GetByIdAsync(Guid id)
         {

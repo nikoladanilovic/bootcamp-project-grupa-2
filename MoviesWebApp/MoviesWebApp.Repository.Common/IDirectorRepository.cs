@@ -9,7 +9,7 @@ namespace MoviesWebApp.Repository.Common
 {
     public interface IDirectorRepository
     {
-        Task<IEnumerable<Director>> GetAllAsync();
+        Task<IEnumerable<Director>> GetAllAsync(string? search = null, int page = 1, int pageSize = 4);
         Task<Director?> GetByIdAsync(Guid id);
         Task AddAsync(Director director);
         Task UpdateAsync(Director director);
